@@ -1,0 +1,23 @@
+{% for post in page_obj%}
+  <article>
+    <ul>
+      <li>
+        Автор: {{ post.author }}
+      </li>
+      <li>
+        Дата публикации: {{ post.created }}
+      </li>
+    </ul>
+    <p>
+      {{ post.text }}
+    </p>
+    {% if post.group.slug not in request.path and post.group %}
+      <a href="{% url 'posts:group_posts' post.group.slug %}">все записи группы</a>
+    {% endif %}
+    <a href="{% url 'posts:post_detail' post.id %}">подробная информация</a>
+  </article>
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+{% endfor %}
+{% include 'posts/includes/paginator.html' %}
