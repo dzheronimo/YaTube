@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django import forms
 
 
-from ..models import Post, Group, Comment
+from ..models import Post, Group, Comment, Follow
 
 
 User = get_user_model()
@@ -469,4 +469,65 @@ class CacheTests(BaseTestClass):
         self.assertNotIn(
             self.post.text, response.content.decode('utf8'),
             'После очистки кеша, пост должен удалиться со страницы'
+        )
+
+
+class FollowTests(BaseTestClass):
+    def setUp(self) -> None:
+        self.authorized_client = Client()
+        self.authorized_client.force_login(FollowTests.user)
+        self.author = User.objects.create(
+            username='test_author'
+        )
+        self.other_author = User.objects.create(
+            username='other_test_author'
+        )
+
+    def test_auth_user_can_follow_others_authors(self):
+        self.authorized_client.post(
+            reverse('posts:profile_follow',
+                    kwargs={'username': self.author.username}))
+
+        self.assertTrue(
+            self.user.follower.filter(
+                author__username=self.author.username).exists()
+        )
+
+    def test_auth_user_can_unfollow_others_authors(self):
+        self.authorized_client.post(
+            reverse('posts:profile_unfollow',
+                    kwargs={'username': self.author.username}))
+
+        self.assertFalse(
+            self.user.follower.filter(
+                author__username=self.author.username).exists()
+        )
+
+    def test_new_post_shows_on_follower_feed(self):
+        Follow.objects.create(
+            user=FollowTests.user,
+            author=self.author
+        )
+        post = Post.objects.create(
+            text='Тестовый пост',
+            author=self.author
+        )
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertIn(
+            post, response.context['page_obj']
+        )
+
+    def test_new_post_dont_shows_on_not_follower_feed(self):
+        Follow.objects.create(
+            user=FollowTests.user,
+            author=self.author
+        )
+        post = Post.objects.create(
+            text='Тестовый пост',
+            author=self.author
+        )
+        self.authorized_client.force_login(self.other_author)
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertNotIn(
+            post, response.context['page_obj']
         )
