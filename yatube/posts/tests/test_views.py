@@ -404,8 +404,10 @@ class ImageTest(BaseTestClass):
         )
         pages_context = [
             reverse('posts:index'),
-            reverse('posts:profile', kwargs={'username': ImageTest.user.username}),
-            reverse('posts:group_posts', kwargs={'slug': ImageTest.group.slug}),
+            reverse('posts:profile',
+                    kwargs={'username': ImageTest.user.username}),
+            reverse('posts:group_posts',
+                    kwargs={'slug': ImageTest.group.slug}),
         ]
 
         for reverse_name in pages_context:
