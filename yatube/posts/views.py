@@ -166,61 +166,32 @@ class FollowIndexView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.queryset:
-            context['follow'] = True
-        else:
-            context['follow'] = False
+        author = User.objects.get(username=self.kwargs.get('username'))
+        context['following'] = self.request.user.following.filter(author=author)
         return context
 
 
 @login_required
 def profile_follow(request, username):
-    Follow.objects.create(
+    author = User.objects.get(username=username)
+    following = Follow.objects.filter(
         user=request.user,
-        author=User.objects.get(username=username))
+        author=author
+    ).exists()
+
+    if following:
+        Follow.objects.create(
+            user=request.user,
+            author=author)
 
     return redirect('posts:profile', username)
-# class ProfileFollow(CreateView):
-#     model = Follow
-#
-#     def get_success_url(self):
-#         return reverse('posts:profile', kwargs={'username': self.kwargs.get('username')})
-#
-#     @method_decorator(login_required())
-#     def get_object(self, queryset=None):
-#         object = Follow.objects.create(
-#             user=self.request.user,
-#             author=User.objects.get(id=self.kwargs.get('user_id'))
-#         )
-#         return object
 
-
-class ProfileUnfollow(DeleteView):
-    model = Follow
-
-    def get_object(self, queryset=None):
-        self.object = Follow.objects.filter(
-            user=self.request.user,
-            author=User.objects.get(username=self.kwargs.get('username'))
-        )
-        return self.object
 
 @login_required
 def profile_unfollow(request, username):
-    # Дизлайк, отписка
-    ...
-
-# class FollowingsView(ListView):
-#     model = Follow
-#     template_name = 'posts/index.html'
-#     paginate_by = 10
-#
-#
-#
-#
-# class ProfileFollowView(UpdateView):
-#     ...
-#
-#
-# class ProfileUnfollowView(UpdateView):
-#     ...
+    unfollower = Follow.objects.filter(
+        user=request.user,
+        author__username=username
+    )
+    unfollower.delete()
+    return redirect('posts:profile', username)
