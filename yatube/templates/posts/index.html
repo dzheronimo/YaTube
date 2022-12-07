@@ -4,5 +4,8 @@
 {% load thumbnail %}
   <h1>Последние обновления на сайте</h1>
   {% include 'posts/includes/switcher.html' %}
-  {% include 'posts/includes/posts.html' %}
+{% load cache %}
+  {% cache 20 index_page %}
+    {% include 'posts/includes/posts.html' %}
+  {% endcache %}
 {% endblock %}

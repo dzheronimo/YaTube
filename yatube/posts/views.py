@@ -1,22 +1,19 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.generic import ListView, DetailView, FormView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, FormView, CreateView
 from django.views.generic import UpdateView
-from django.urls import reverse
 from .models import Group, Post, User, Comment, Follow
 from .forms import PostForm, CommentForm
+
+
+POSTS_PER_PAGE = 10
 
 
 class IndexListView(ListView):
     model = Post
     template_name = 'posts/index.html'
-    paginate_by = 10
-
-    @method_decorator(cache_page(20, key_prefix='index_page'))
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    paginate_by = POSTS_PER_PAGE
 
 
 class GroupListView(ListView):
@@ -30,7 +27,7 @@ class GroupListView(ListView):
         return self.queryset.all()
 
     template_name = 'posts/group_list.html'
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -40,7 +37,7 @@ class GroupListView(ListView):
 
 class ProfileListView(ListView):
     template_name = 'posts/profile.html'
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
 
     def get_object(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
@@ -155,7 +152,7 @@ class AddCommentView(CreateView):
 class FollowIndexView(ListView):
     model = Post
     template_name = 'posts/follow.html'
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
 
     @method_decorator(login_required())
     def dispatch(self, request, *args, **kwargs):
