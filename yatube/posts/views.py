@@ -52,8 +52,13 @@ class ProfileListView(ListView):
         return self.queryset.all()
 
     def get_context_data(self, **kwargs):
+        author = self.get_object()
         context = super().get_context_data(**kwargs)
-        context['author'] = self.get_object()
+        context['author'] = author
+        if self.request.user.is_authenticated:
+            context['following'] = self.request.user.follower.filter(
+                author__username=author.username)
+
         return context
 
 
