@@ -10,6 +10,7 @@ def csrf_failure(request, reason=''):
     template = 'core/403csrf.html'
     return render(request, template)
 
+
 def internal_server_error(request):
     template = 'core/500.html'
     return render(request, template)
