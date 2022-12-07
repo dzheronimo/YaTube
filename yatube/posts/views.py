@@ -164,12 +164,6 @@ class FollowIndexView(ListView):
         self.queryset = post_list_follow
         return self.queryset
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        author = User.objects.get(username=self.kwargs.get('username'))
-        context['following'] = self.request.user.following.filter(author=author)
-        return context
-
 
 @login_required
 def profile_follow(request, username):
