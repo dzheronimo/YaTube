@@ -173,15 +173,11 @@ class FollowIndexView(ListView):
 @login_required
 def profile_follow(request, username):
     author = User.objects.get(username=username)
-    following = Follow.objects.filter(
-        user=request.user,
-        author=author
-    ).exists()
-
-    if following:
-        Follow.objects.create(
-            user=request.user,
-            author=author)
+    if author.id is not request.user.id:
+        if not request.user.follower.filter(author__username=username):
+            Follow.objects.create(
+                user=request.user,
+                author=author)
 
     return redirect('posts:profile', username)
 
