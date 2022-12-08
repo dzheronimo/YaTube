@@ -171,12 +171,33 @@ class ProfileFollow(LoginRequiredMixin, View):
         )
 
 
+class ProfileUnfollow(LoginRequiredMixin, View):
+    model = Follow
 
-@login_required
-def profile_unfollow(request, username):
-    unfollower = Follow.objects.filter(
-        user=request.user,
-        author__username=username
-    )
-    unfollower.delete()
-    return redirect('posts:profile', username)
+    def get(self, request, **kwargs):
+        author_username = kwargs.get('username')
+        author = User.objects.get(username=author_username)
+        followings = request.user.follower.filter(author__username=author_username)
+        if author.id is not request.user.id:
+            if followings.exists():
+                followings.delete()
+        return redirect(
+            reverse(
+                'posts:profile',
+                kwargs={'username': self.kwargs.get('username')})
+        )
+
+# class ProfileUnfollow(DeleteView):
+#     model = Follow
+#     template_name = None
+#
+#     def get_object(self, queryset=None):
+#         author_username = self.kwargs.get('username')
+#         self.object = Follow.objects.filter(
+#             user=self.request.user,
+#             author__username=author_username
+#         )
+#         return self.object
+#
+#     def get_success_url(self):
+#         return reverse('posts:profile', kwargs={'username': self.kwargs.get('username')})
