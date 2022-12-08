@@ -458,7 +458,7 @@ class FollowTests(BaseTestClass):
         )
 
     def test_auth_user_can_follow_others_authors(self):
-        self.authorized_client.post(
+        self.authorized_client.get(
             reverse('posts:profile_follow',
                     kwargs={'username': self.author.username}))
 
