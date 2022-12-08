@@ -18,6 +18,9 @@ class IndexListView(ListView):
 
 
 class GroupListView(ListView):
+    template_name = 'posts/group_list.html'
+    paginate_by = POSTS_PER_PAGE
+
     def get_object(self):
         group = get_object_or_404(Group, slug=self.kwargs.get('slug'))
         return group
@@ -26,9 +29,6 @@ class GroupListView(ListView):
         group = self.get_object()
         self.queryset = group.posts
         return self.queryset.all()
-
-    template_name = 'posts/group_list.html'
-    paginate_by = POSTS_PER_PAGE
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -66,12 +66,12 @@ class PostDetailView(DetailView, FormView):
     template_name = 'posts/post_detail.html'
     pk_url_kwarg = 'post_id'
     form_class = CommentForm
+    symbols_count = 30
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = context['post']
-        symbols_count = 30
-        title = f'Пост {post.text[:symbols_count]}'
+        title = f'Пост {post.text[:self.symbols_count]}'
         author_fullname = f'{post.author.first_name} {post.author.last_name}'
         context['comments'] = post.comments.all()
         context['title'] = title
