@@ -367,34 +367,6 @@ class ImageTest(BaseTestClass):
         self.authorized_client.force_login(ImageTest.user)
         cache.clear()
 
-    def test_post_with_image_create_record_in_db(self):
-        posts_count = Post.objects.count()
-        form_data = {
-            'text': 'Тестовый пост',
-            'image': self.uploaded
-        }
-        response = self.authorized_client.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
-        )
-        self.assertRedirects(
-            response,
-            reverse(
-                'posts:profile',
-                kwargs={'username': ImageTest.user.username})
-        )
-        self.assertEqual(
-            Post.objects.count(),
-            (posts_count + 1),
-        )
-        self.assertTrue(
-            Post.objects.filter(
-                author=ImageTest.user,
-                text=form_data['text']
-            ).exists()
-        )
-
     def test_pages_show_correct_context_with_image(self):
         post_with_img = Post.objects.create(
             author=ImageTest.user,
