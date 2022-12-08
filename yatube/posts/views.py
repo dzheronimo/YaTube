@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, FormView, CreateView
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, View
+from django.urls import reverse
 from .models import Group, Post, User, Comment, Follow
 from .forms import PostForm, CommentForm
 
@@ -167,14 +168,24 @@ class FollowIndexView(ListView):
         return self.queryset
 
 
-@login_required
-def profile_follow(request, username):
-    author = User.objects.get(username=username)
-    if author.id is not request.user.id:
-        if not request.user.follower.filter(author__username=username):
-            Follow.objects.create(
-                user=request.user,
-                author=author)
+class ProfileFollow(View):
+    model = Follow
+
+    @method_decorator(login_required())
+    def get(self, request, **kwargs):
+        author_username = kwargs.get('username')
+        author = User.objects.get(username=author_username)
+        if author.id is not request.user.id:
+            if not request.user.follower.filter(author__username=author_username):
+                Follow.objects.create(
+                    user=request.user,
+                    author=author
+                )
+        return redirect(
+            reverse(
+                'posts:profile',
+                kwargs={'username': self.kwargs.get('username')})
+        )
 
     return redirect('posts:profile', username)
 

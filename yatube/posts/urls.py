@@ -31,7 +31,7 @@ urlpatterns = [
     ),
     path(
         'profile/<str:username>/follow/',
-        views.profile_follow,
+        views.ProfileFollow.as_view(),
         name='profile_follow'
     ),
     path(
