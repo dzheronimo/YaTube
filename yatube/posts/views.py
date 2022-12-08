@@ -1,6 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
 from django.views.generic import (ListView, DetailView,
                                   FormView, CreateView, UpdateView, View)
 from django.urls import reverse
@@ -159,7 +158,8 @@ class ProfileFollow(LoginRequiredMixin, View):
         author_username = kwargs.get('username')
         author = User.objects.get(username=author_username)
         if author.id is not request.user.id:
-            if not request.user.follower.filter(author__username=author_username):
+            if not request.user.follower.filter(
+                    author__username=author_username):
                 Follow.objects.create(
                     user=request.user,
                     author=author
@@ -177,7 +177,8 @@ class ProfileUnfollow(LoginRequiredMixin, View):
     def get(self, request, **kwargs):
         author_username = kwargs.get('username')
         author = User.objects.get(username=author_username)
-        followings = request.user.follower.filter(author__username=author_username)
+        followings = request.user.follower.filter(
+            author__username=author_username)
         if author.id is not request.user.id:
             if followings.exists():
                 followings.delete()
