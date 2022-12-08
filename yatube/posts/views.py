@@ -186,18 +186,3 @@ class ProfileUnfollow(LoginRequiredMixin, View):
                 'posts:profile',
                 kwargs={'username': self.kwargs.get('username')})
         )
-
-# class ProfileUnfollow(DeleteView):
-#     model = Follow
-#     template_name = None
-#
-#     def get_object(self, queryset=None):
-#         author_username = self.kwargs.get('username')
-#         self.object = Follow.objects.filter(
-#             user=self.request.user,
-#             author__username=author_username
-#         )
-#         return self.object
-#
-#     def get_success_url(self):
-#         return reverse('posts:profile', kwargs={'username': self.kwargs.get('username')})
