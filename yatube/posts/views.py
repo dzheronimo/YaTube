@@ -1,8 +1,8 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, DetailView, FormView, CreateView
-from django.views.generic import UpdateView, View
+from django.views.generic import (ListView, DetailView,
+                                  FormView, CreateView, UpdateView, View)
 from django.urls import reverse
 from .models import Group, Post, User, Comment, Follow
 from .forms import PostForm, CommentForm
@@ -79,14 +79,10 @@ class PostDetailView(DetailView, FormView):
         return context
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     form_class = PostForm
     template_name = 'posts/create_post.html'
     extra_context = {'is_edit': False}
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         user = self.request.user
@@ -96,14 +92,10 @@ class PostCreateView(CreateView):
         return redirect('posts:profile', user.username)
 
 
-class PostEditView(UpdateView):
+class PostEditView(LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'posts/create_post.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(Post, id=self.kwargs.get('post_id'))
@@ -129,13 +121,9 @@ class PostEditView(UpdateView):
         return context
 
 
-class AddCommentView(CreateView):
+class AddCommentView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = Post.objects.get(id=self.kwargs.get('post_id'))
@@ -150,14 +138,10 @@ class AddCommentView(CreateView):
         return redirect('posts:post_detail', post.id)
 
 
-class FollowIndexView(ListView):
+class FollowIndexView(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'posts/follow.html'
     paginate_by = POSTS_PER_PAGE
-
-    @method_decorator(login_required())
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -168,10 +152,9 @@ class FollowIndexView(ListView):
         return self.queryset
 
 
-class ProfileFollow(View):
+class ProfileFollow(LoginRequiredMixin, View):
     model = Follow
 
-    @method_decorator(login_required())
     def get(self, request, **kwargs):
         author_username = kwargs.get('username')
         author = User.objects.get(username=author_username)
@@ -187,7 +170,6 @@ class ProfileFollow(View):
                 kwargs={'username': self.kwargs.get('username')})
         )
 
-    return redirect('posts:profile', username)
 
 
 @login_required
