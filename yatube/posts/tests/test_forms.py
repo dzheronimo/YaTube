@@ -45,9 +45,9 @@ class PostFormTests(TestCase):
             b'\x0A\x00\x3B'
         )
         cls.uploaded = SimpleUploadedFile(
-            name='some.png',
+            name='some.gif',
             content=cls.img,
-            content_type='image/png'
+            content_type='image/gif'
         )
 
     def setUp(self) -> None:
@@ -116,8 +116,9 @@ class PostFormTests(TestCase):
         self.assertTrue(
             Post.objects.filter(
                 author=PostFormTests.user,
-                text=form_data['text']
-            ).exists()
+                text=form_data['text'],
+                image='posts/some.gif'
+                ).exists()
         )
 
     def test_post_not_create_unauthorized_user(self):

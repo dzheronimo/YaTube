@@ -157,10 +157,10 @@ class ProfileFollow(LoginRequiredMixin, View):
     def get(self, request, **kwargs):
         author_username = kwargs.get('username')
         author = User.objects.get(username=author_username)
-        if author.id is not request.user.id:
-            if not request.user.follower.filter(
-                    author__username=author_username):
-                Follow.objects.create(
+        follower = request.user.follower.filter(
+                author__username=author_username)
+        if author.id is not request.user.id and not follower.exists():
+            Follow.objects.create(
                     user=request.user,
                     author=author
                 )
