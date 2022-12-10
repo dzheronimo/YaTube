@@ -118,7 +118,7 @@ class PostFormTests(TestCase):
                 author=PostFormTests.user,
                 text=form_data['text'],
                 image='posts/some.gif'
-                ).exists()
+            ).exists()
         )
 
     def test_post_not_create_unauthorized_user(self):

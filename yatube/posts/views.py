@@ -158,12 +158,12 @@ class ProfileFollow(LoginRequiredMixin, View):
         author_username = kwargs.get('username')
         author = User.objects.get(username=author_username)
         follower = request.user.follower.filter(
-                author__username=author_username)
+            author__username=author_username)
         if author.id is not request.user.id and not follower.exists():
             Follow.objects.create(
-                    user=request.user,
-                    author=author
-                )
+                user=request.user,
+                author=author
+            )
         return redirect(
             reverse(
                 'posts:profile',
