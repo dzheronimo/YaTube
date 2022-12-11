@@ -159,7 +159,7 @@ class ProfileFollow(LoginRequiredMixin, View):
         author = User.objects.get(username=author_username)
         follower = request.user.follower.filter(
             author__username=author_username)
-        if author.id is not request.user.id and not follower.exists():
+        if author.id != request.user.id and not follower.exists():
             Follow.objects.create(
                 user=request.user,
                 author=author
@@ -179,7 +179,7 @@ class ProfileUnfollow(LoginRequiredMixin, View):
         author = User.objects.get(username=author_username)
         followings = request.user.follower.filter(
             author__username=author_username)
-        if author.id is not request.user.id:
+        if author.id != request.user.id:
             if followings.exists():
                 followings.delete()
         return redirect(
